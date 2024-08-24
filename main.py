@@ -20,7 +20,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_msg)
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    assistant_reponse = await chatbot.chat(update.message.text)
+    assistant_reponse = chatbot.chat(update.message.text)
     await context.bot.send_message(chat_id=update.effective_chat.id, text=assistant_reponse)
 
 if __name__ == '__main__':

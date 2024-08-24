@@ -1,7 +1,7 @@
 import concurrent.futures
 from openai_src.native_assistant import client
 from openai_src.constants import QUESITON_DECOMPOSITOR_MODEL, QUESITON_DECOMPOSITOR_TEMPERATURE
-from openai_src.constants import QUESITON_DECOMPOSITOR_INSTRUCTIONS, QUESTION_DECOMPOSITOR_SCHEMA
+from openai_src.constants import QUESITON_DECOMPOSITOR_INSTRUCTIONS, QUESTION_DECOMPOSITOR_SCHEMA, QUESTION_DECOMPOSITOR_MESSAGE_BUILD
 
 from openai_src.constants import INFO_RETRIEVER_MODEL, INFO_RETRIEVER_INSTRUCTIONS, INFO_RETRIEVER_TEMPERATURE
 
@@ -12,13 +12,14 @@ import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import concurrent
 
-def parse_questions(complex_question):
+def parse_questions(complex_question, history):
+    content = QUESTION_DECOMPOSITOR_MESSAGE_BUILD(complex_question, history)
     simpler_questions = client.beta.chat.completions.parse(
         model=QUESITON_DECOMPOSITOR_MODEL,
         temperature=QUESITON_DECOMPOSITOR_TEMPERATURE,
         messages=[
             {"role": "system", "content": QUESITON_DECOMPOSITOR_INSTRUCTIONS},
-            {"role": "user", "content": complex_question}
+            {"role": "user", "content": content}
         ],
         response_format={"type": "json_schema", "json_schema": QUESTION_DECOMPOSITOR_SCHEMA}
     )
@@ -49,17 +50,17 @@ def get_simpler_questions_answer(simpler_questions):
             result.append(answer)
     return result
 
-def get_question_answer(message):
-    simpler_questions = parse_questions(message)
-
+def get_question_answer(history, message):
+    simpler_questions = parse_questions(message, history)
+    print(simpler_questions)
     answers = get_simpler_questions_answer(simpler_questions)
-
+    print(answers)
     main_answer = client.chat.completions.create(
         model=ANSWER_BUILDER_MODEL,
         temperature=ANSWER_BUILDER_TEMPERATURE,
         messages=[
             {"role": "system", "content": ANSWER_BUILDER_INSTRUCTIONS},
-            {"role": "user", "content": ANSWER_BUILDER_MESSAGE_BUILD(message, '\n\n'.join(answers))}
+            {"role": "user", "content": ANSWER_BUILDER_MESSAGE_BUILD(simpler_questions, '\n\n'.join(answers))}
         ]
     )
     return main_answer.choices[0].message.content
