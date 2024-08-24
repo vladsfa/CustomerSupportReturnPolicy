@@ -54,13 +54,13 @@ def get_question_answer(history, message):
     simpler_questions = parse_questions(message, history)
     print(simpler_questions)
     answers = get_simpler_questions_answer(simpler_questions)
-    print(answers)
+    print('\n\n'.join(answers))
     main_answer = client.chat.completions.create(
         model=ANSWER_BUILDER_MODEL,
         temperature=ANSWER_BUILDER_TEMPERATURE,
         messages=[
             {"role": "system", "content": ANSWER_BUILDER_INSTRUCTIONS},
-            {"role": "user", "content": ANSWER_BUILDER_MESSAGE_BUILD(simpler_questions, '\n\n'.join(answers))}
+            {"role": "user", "content": ANSWER_BUILDER_MESSAGE_BUILD(message, '\n\n'.join(answers))}
         ]
     )
     return main_answer.choices[0].message.content

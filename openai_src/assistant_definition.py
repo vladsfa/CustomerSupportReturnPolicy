@@ -62,11 +62,9 @@ class OpenAiBot:
     self.send_msg('user', user_msg)
 
     response = self.get_assistant_msg()
-    print(response)
     return response
 
   def send_msg(self, role, msg):
-    print(msg)
     _ = client.beta.threads.messages.create(
       self.thread.id,
       role=role,

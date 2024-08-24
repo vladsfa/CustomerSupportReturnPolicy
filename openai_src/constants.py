@@ -341,10 +341,11 @@ def QUESTION_DECOMPOSITOR_MESSAGE_BUILD(question, history):
 INFO_RETRIEVER_MODEL = "gpt-4o"
 INFO_RETRIEVER_TEMPERATURE = 0.01
 INFO_RETRIEVER_INSTRUCTIONS = (
-    "I will ask a question. You should answer it using only the information from the topics in the <information> tag, quoting her.\n"
+    "I will ask a question. You should answer it using only the information from the topics in the <information> tag, quoting her, in text format.\n"
     "Your goal is to provide the most accurate, broad answer using only the information from the <information> tag and after each information\n"
     "unit, indicate the topic from which it is taken.\n"
     "Let's assume all questions are about returns.\n"
+    "Please note the differences between the voluntary return policy and the statutory right of cancellation.\n"
     "\n"
     "Don't make assumptions about the general return policy unless it's clearly stated in the <information>.\n"
     "Do not make not reasonable assumptions about the relationship of the information in the <information> tag, the penalty for an incorrect\n"
@@ -352,7 +353,8 @@ INFO_RETRIEVER_INSTRUCTIONS = (
     "\n"
     "The <information> tag does not contain information about the Amazon A-to-z Guarantee, only its mention.\n"
     "If <information> does not contain any relevant information, the answer will be \"No relevant information\", but if there are instructions on\n"
-    "where to find this information, include all of those instructions."
+    "where to find this information, include all of those instructions.\n"
+    "Do not mention items from Other Specific Items unnecessarily.\n"
     "\n"
     "For every return policy guess you make that is not in <information>, you will be fined $100,000.\n"
     "CHECK SEVERAL TIMES THAT ALL THE INFORMATION THAT ANSWERS THE QUESTION IS CONTAINED IN THE <information> TAG.\n"
@@ -534,26 +536,25 @@ INFO_RETRIEVER_INSTRUCTIONS = (
 ANSWER_BUILDER_MODEL = "gpt-4o"
 ANSWER_BUILDER_TEMPERATURE = 0.01
 ANSWER_BUILDER_INSTRUCTIONS = (
-    "You will be given a questions and information to answer it, give a detailed but clear answers using only the information in the <information> tag and no other information.\n"
+    "You will be given a question and information to answer it, give detailed but clear answer that are consistent with all the information in the <information> tag.\n"
     "\n"
-    "If there is no relevant information, indicate where it can be found, if such information is provided, and state that \"non-item specific sections may contain relevant information\" and ask if the user wants you to view it?\n"
+    "If \"No relevant information\" in <information>, indicate where it can be found, if such information is provided.\n"
+    "If \"No relevant information\" in <information>, state that \"non-product specific sections may contain relevant information\" and ask if the user wants you to send him information from these sections, in other cases, don't ask.\n"
     "\n"
     "Ensure that the answers is formatted in a user-friendly manner.\n"
-    "The question is about the return policy of www.amazon.co.uk.\n"
-    "The question is contained in the <questions> tag.\n"
+    "The question is contained in the <question> tag.\n"
     "The information is contained in the <information> tag.\n"
     "Using information outside of the <information> tag will result in a $100,000 fine.\n"
-    "If the information contains sections from where it was taken, then also list those sections in the same format.\n"
     "The same information should not be repeated in two places.\n"
     "Forget any information that is not in the <information> tag.\n"
     "\n"
     "Check several times so that the answer is logical and does not contradict itself.\n"
 )
-def ANSWER_BUILDER_MESSAGE_BUILD(questions, info):
-    questions_str = ""
-    for question in questions:
-        questions_str += f"{question}\n"
+def ANSWER_BUILDER_MESSAGE_BUILD(question, info):
+    # questions_str = ""
+    # for question in questions:
+    #     questions_str += f"{question}\n"
     return (
-        f"<questions>\n{question}\n</questions>\n"
+        f"<question>\n{question}\n\n</question>\n"
         f"<information>\n{info}\n</information>"
     )
